@@ -1,9 +1,9 @@
 #pragma once
 
-// mapbox
-#include <mapbox/geometry/line_string.hpp>
 // stl
 #include <vector>
+// mapbox
+#include "line_string.hpp"
 
 namespace mapbox {
 namespace geometry {

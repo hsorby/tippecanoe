@@ -1,10 +1,13 @@
 #include <stack>
 #include <set>
 #include <stdlib.h>
+
 #include <mapbox/geometry/point.hpp>
 #include <mapbox/geometry/multi_polygon.hpp>
 #include <mapbox/geometry/wagyu/wagyu.hpp>
+
 #include <clipper2/clipper.h>
+
 #include <limits.h>
 #include "geometry.hpp"
 #include "errors.hpp"

@@ -1,9 +1,9 @@
 #pragma once
 
-// mapbox
-#include <mapbox/geometry/polygon.hpp>
 // stl
 #include <vector>
+// mapbox
+#include "polygon.hpp"
 
 namespace mapbox {
 namespace geometry {

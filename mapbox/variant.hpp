@@ -12,8 +12,8 @@
 #include <utility>
 #include <functional>
 
-#include <mapbox/recursive_wrapper.hpp>
-#include <mapbox/variant_visitor.hpp>
+#include "recursive_wrapper.hpp"
+#include "variant_visitor.hpp"
 
 // clang-format off
 // [[deprecated]] is only available in C++14, use this for the time being

@@ -1,16 +1,16 @@
 #pragma once
 
-#include <mapbox/geometry/point.hpp>
-#include <mapbox/geometry/line_string.hpp>
-#include <mapbox/geometry/polygon.hpp>
-#include <mapbox/geometry/multi_point.hpp>
-#include <mapbox/geometry/multi_line_string.hpp>
-#include <mapbox/geometry/multi_polygon.hpp>
-
-#include <mapbox/variant.hpp>
-
 // stl
 #include <vector>
+
+#include "point.hpp"
+#include "line_string.hpp"
+#include "multi_line_string.hpp"
+#include "polygon.hpp"
+#include "multi_point.hpp"
+#include "multi_polygon.hpp"
+
+#include "../variant.hpp"
 
 namespace mapbox {
 namespace geometry {

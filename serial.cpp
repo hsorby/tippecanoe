@@ -665,11 +665,15 @@ int serialize_feature(struct serialization_state *sst, serial_feature &sf, std::
 		// VT_POINT extent will be calculated in write_tile from the distance between adjacent features.
 	}
 
-	if (extent <= LLONG_MAX) {
-		sf.extent = (long long) extent;
-	} else {
-		sf.extent = LLONG_MAX;
-	}
+    constexpr double max_extent =
+        static_cast<double>(std::numeric_limits<long long>::max());
+
+    if (std::isfinite(extent)) {
+        sf.extent = static_cast<long long>(
+            std::min(extent, max_extent));
+    } else {
+        sf.extent = std::numeric_limits<long long>::max();
+    }
 
 	if (sst->want_dist && sf.t == VT_POLYGON) {
 		*(sst->area_sum) += extent;

@@ -38,7 +38,9 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
-#include "jsonpull/jsonpull.h"
+extern "C" {
+    #include "jsonpull/jsonpull.h"
+}
 #include "milo/dtoa_milo.h"
 #include "errors.hpp"
 #include "geometry.hpp"

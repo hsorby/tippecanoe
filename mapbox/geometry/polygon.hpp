@@ -1,10 +1,10 @@
 #pragma once
 
-// mapbox
-#include <mapbox/geometry/point.hpp>
-
 // stl
 #include <vector>
+
+// mapbox
+#include "point.hpp"
 
 namespace mapbox {
 namespace geometry {

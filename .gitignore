@@ -51,3 +51,7 @@ tests/**/*.geobuf
 
 # Nodejs
 node_modules
+
+# Qt Creator
+.qtcreator/
+

@@ -7,8 +7,11 @@
 #include <string>
 #include <sqlite3.h>
 #include <stdio.h>
-#include <mvt.hpp>
-#include "jsonpull/jsonpull.h"
+
+#include "mvt.hpp"
+extern "C" {
+    #include "jsonpull/jsonpull.h"
+}
 #include "attribute.hpp"
 
 #define VT_POINT 1

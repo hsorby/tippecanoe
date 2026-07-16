@@ -9,7 +9,9 @@
 #include "mbtiles.hpp"
 #include "serial.hpp"
 #include "attribute.hpp"
-#include "jsonpull/jsonpull.h"
+extern "C" {
+    #include "jsonpull/jsonpull.h"
+}
 
 struct atomic_strategy {
 	std::atomic<size_t> dropped_by_rate;

@@ -1,10 +1,11 @@
-#include <mapbox/geometry/geometry.hpp>
 #include <math.h>
 #include <map>
 #include <set>
 #include <vector>
 #include <algorithm>
 #include <cmath>
+
+#include "geometry.hpp"
 
 namespace mapbox {
 namespace geometry {

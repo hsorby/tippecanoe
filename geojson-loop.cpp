@@ -11,7 +11,9 @@
 #include <ctype.h>
 #include <errno.h>
 #include "geojson-loop.hpp"
-#include "jsonpull/jsonpull.h"
+extern "C" {
+    #include "jsonpull/jsonpull.h"
+}
 
 // XXX duplicated
 #define GEOM_TYPES 6

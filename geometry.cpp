@@ -9,9 +9,11 @@
 #include <cmath>
 #include <limits.h>
 #include <sqlite3.h>
-#include <mapbox/geometry/point.hpp>
-#include <mapbox/geometry/multi_polygon.hpp>
-#include <mapbox/geometry/snap_rounding.hpp>
+
+#include "mapbox/geometry/point.hpp"
+#include "mapbox/geometry/multi_polygon.hpp"
+#include "mapbox/geometry/snap_rounding.hpp"
+
 #include "geometry.hpp"
 #include "projection.hpp"
 #include "serial.hpp"

@@ -7,7 +7,9 @@
 #include <string>
 #include <getopt.h>
 #include <vector>
-#include "jsonpull/jsonpull.h"
+extern "C" {
+    #include "jsonpull/jsonpull.h"
+}
 #include "csv.hpp"
 #include "text.hpp"
 #include "geojson-loop.hpp"

@@ -3,7 +3,9 @@
 #include "attribute.hpp"
 #include "errors.hpp"
 #include "serial.hpp"
-#include "jsonpull/jsonpull.h"
+extern "C" {
+    #include "jsonpull/jsonpull.h"
+}
 #include "milo/dtoa_milo.h"
 
 std::map<std::string, attribute_op> numeric_operations = {
