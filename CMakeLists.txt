@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.21.0)
+cmake_minimum_required(VERSION 3.24.0)
 
 if(APPLE)
   set(CMAKE_OSX_DEPLOYMENT_TARGET 14.0 CACHE STRING "Minimum OS X deployment version.")
