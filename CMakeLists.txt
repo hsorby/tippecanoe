@@ -10,12 +10,39 @@ set(CURRENT_VERSION 2.80.0)
 
 project(${PROJECT_NAME} VERSION ${CURRENT_VERSION} LANGUAGES CXX)
 
-find_package(zlib REQUIRED)
+include(FetchContent)
+
+if (WIN32)
+  FetchContent_Declare(
+    zlib
+    URL https://github.com/madler/zlib/releases/download/v1.3.2/zlib132.zip
+  )
+
+  FetchContent_MakeAvailable(zlib)
+else()
+  find_package(ZLIB REQUIRED)
+endif()
+
 if(NOT TARGET ZLIB::ZLIB)
   message(FATAL_ERROR "ZLIB::ZLIB target not available. Tippecanoe requires this target for building the application.")
 endif()
 
-find_package(sqlite3 REQUIRED)
+if(WIN32)
+  FetchContent_Declare(
+    sqlite3
+    URL https://sqlite.org/2026/sqlite-amalgamation-3530300.zip
+  )
+
+  FetchContent_MakeAvailable(sqlite3)
+
+  add_library(sqlite3 STATIC ${sqlite3_SOURCE_DIR}/sqlite3.c)
+  target_include_directories(sqlite3 PUBLIC ${sqlite3_SOURCE_DIR})
+
+  add_library(SQLite3::SQLite3 ALIAS sqlite3)
+else()
+  find_package(SQlite3 REQUIRED)
+endif()
+
 if(NOT TARGET SQLite3::SQLite3) # CMake < 4.3
   add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
 endif()
