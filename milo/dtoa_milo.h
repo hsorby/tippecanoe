@@ -4,7 +4,7 @@
 #include <cmath>
 
 #if defined(_MSC_VER)
-#include "msinttypes/stdint.h"
+//#include "msinttypes/stdint.h"
 #include <intrin.h>
 #else
 #include <stdint.h>
