@@ -42,7 +42,7 @@ if(WIN32)
 
   add_library(SQLite3::SQLite3 ALIAS sqlite3)
 else()
-  find_package(SQlite3 REQUIRED)
+  find_package(SQLite3 REQUIRED)
 endif()
 
 if(NOT TARGET SQLite3::SQLite3) # CMake < 4.3
@@ -94,7 +94,7 @@ set(_SRCS
 add_executable(${PROJECT_NAME} ${_SRCS})
 #target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-target_compile_definitions(${PROJECT_NAME} PUBLIC BUILD_INFO=$<CONFIG>)
+target_compile_definitions(${PROJECT_NAME} PUBLIC BUILD_INFO=$<CONFIG> $<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,_USE_MATH_DEFINES,>)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC clipper2 jsonpull SQLite3::SQLite3 ZLIB::ZLIB Threads::Threads)
 
