@@ -333,7 +333,7 @@ std::string truncate_string(std::string const &s, size_t len) {
 	}
 
 	// find the initial byte of a UTF-8 character
-	ssize_t i;
+    std::ptrdiff_t i;
 	for (i = len; i > 0; i--) {
 		if ((s[i] & 0x80) == 0 || (s[i] & 0xC0) == 0xC0) {
 			break;

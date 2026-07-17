@@ -13,6 +13,13 @@
 #include <vector>
 #include <string>
 
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #include "jsonpull/jsonpull.h"
 #include "projection.hpp"
 #include "main.hpp"

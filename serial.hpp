@@ -8,6 +8,14 @@
 #include <atomic>
 #include <memory>
 #include <sys/stat.h>
+
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #include "geometry.hpp"
 #include "mbtiles.hpp"
 #include "jsonpull/jsonpull.h"

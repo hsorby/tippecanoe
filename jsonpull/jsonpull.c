@@ -5,6 +5,14 @@
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
+
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #include "jsonpull.h"
 #include "../milo/milo.h"
 

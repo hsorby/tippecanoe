@@ -602,7 +602,7 @@ draw center_of_mass_mp(const drawvec &dv) {
 	for (size_t i = 0; i < dv.size(); i++) {
 		if (dv[i].op == VT_MOVETO) {
 			double xsum = dv[i].x, ysum = dv[i].y;
-			ssize_t count = 1;
+            size_t count = 1;
 			size_t j;
 			for (j = i + 1; j < dv.size(); j++) {
 				if (dv[j].op != VT_LINETO) {

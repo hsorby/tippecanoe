@@ -27,6 +27,13 @@
 #include <zlib.h>
 #include <sys/wait.h>
 
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #include "mvt.hpp"
 #include "mbtiles.hpp"
 #include "dirtiles.hpp"

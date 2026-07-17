@@ -793,7 +793,7 @@ int serialize_feature(struct serialization_state *sst, serial_feature &sf, std::
 		}
 	}
 
-	for (ssize_t i = (ssize_t) sf.full_keys.size() - 1; i >= 0; i--) {
+    for (std::ptrdiff_t i = (std::ptrdiff_t) sf.full_keys.size() - 1; i >= 0; i--) {
 		coerce_value(*sf.full_keys[i], sf.full_values[i].type, sf.full_values[i].s, sst->attribute_types);
 
 		if (prevent[P_SINGLE_PRECISION]) {

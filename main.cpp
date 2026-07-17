@@ -38,6 +38,11 @@
 #include <sys/sysctl.h>
 #include <sys/param.h>
 #include <sys/mount.h>
+#elif defined(_MSC_VER)
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
 #else
 #include <sys/statfs.h>
 #endif
@@ -301,10 +306,10 @@ int calc_feature_minzoom(struct index *ix, struct drop_state *ds, int maxzoom, d
 	if (gamma >= 0 && (ix->t == VT_POINT ||
 			   (additional[A_LINE_DROP] && ix->t == VT_LINE) ||
 			   (additional[A_POLYGON_DROP] && ix->t == VT_POLYGON))) {
-		for (ssize_t i = maxzoom; i >= 0; i--) {
+        for (std::ptrdiff_t i = maxzoom; i >= 0; i--) {
 			ds[i].seq++;
 		}
-		for (ssize_t i = maxzoom; i >= 0; i--) {
+        for (std::ptrdiff_t i = maxzoom; i >= 0; i--) {
 			if (ds[i].seq < 0) {
 				feature_minzoom = i + 1;
 
@@ -313,7 +318,7 @@ int calc_feature_minzoom(struct index *ix, struct drop_state *ds, int maxzoom, d
 				// so track where that was so we can make sure
 				// not to cluster something else that is *too*
 				// far away into it.
-				for (ssize_t j = i + 1; j <= maxzoom; j++) {
+                for (std::ptrdiff_t j = i + 1; j <= maxzoom; j++) {
 					ds[j].previndex = ix->ix;
 				}
 
@@ -329,11 +334,11 @@ int calc_feature_minzoom(struct index *ix, struct drop_state *ds, int maxzoom, d
 		// we will go ahead and push it out.
 
 		if (preserve_point_density_threshold > 0) {
-			for (ssize_t i = 0; i < feature_minzoom && i < maxzoom; i++) {
+            for (std::ptrdiff_t i = 0; i < feature_minzoom && i < maxzoom; i++) {
 				if (ix->ix - ds[i].previndex > ((1LL << (32 - i)) / preserve_point_density_threshold) * ((1LL << (32 - i)) / preserve_point_density_threshold)) {
 					feature_minzoom = i;
 
-					for (ssize_t j = i; j <= maxzoom; j++) {
+                    for (std::ptrdiff_t j = i; j <= maxzoom; j++) {
 						ds[j].previndex = ix->ix;
 					}
 
@@ -1051,7 +1056,7 @@ void radix1(int *geomfds_in, int *indexfds_in, int inputs, int prefix, int split
 
 void prep_drop_states(struct drop_state *ds, int maxzoom, int basezoom, double droprate) {
 	// Needs to be signed for interval calculation
-	for (ssize_t i = 0; i <= maxzoom; i++) {
+    for (std::ptrdiff_t i = 0; i <= maxzoom; i++) {
 		ds[i].gap = 0;
 		ds[i].previndex = 0;
 		ds[i].interval = 0;
@@ -1166,7 +1171,7 @@ void choose_first_zoom(long long *file_bbox, long long *file_bbox1, long long *f
 		file_bbox[3] = (1LL << 32) - 1;
 	}
 
-	for (ssize_t z = minzoom; z >= 0; z--) {
+    for (std::ptrdiff_t z = minzoom; z >= 0; z--) {
 		long long shift = 1LL << (32 - z);
 
 		long long left = (file_bbox[0] - buffer * shift / 256) / shift;

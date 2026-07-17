@@ -25,7 +25,7 @@ void parse_geocsv(std::vector<struct serialization_state> &sst, std::string fnam
 
 	std::string s;
 	std::vector<std::string> header;
-	ssize_t latcol = -1, loncol = -1;
+    std::size_t latcol = -1, loncol = -1;
 
 	if ((s = csv_getline(f)).size() > 0) {
 		std::string err = check_utf8(s);

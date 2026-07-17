@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <algorithm>
 
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #include "geometry.hpp"
 #include "serial.hpp"
 #include "options.hpp"

@@ -22,7 +22,7 @@ inline long long swizzlecmp(const char *a, int atype, unsigned long long ahash, 
 	}
 }
 
-long long addpool(struct memfile *poolfile, struct memfile *treefile, const char *s, char type, std::vector<ssize_t> &dedup) {
+long long addpool(struct memfile *poolfile, struct memfile *treefile, const char *s, char type, std::vector<std::ptrdiff_t> &dedup) {
 	unsigned long long hash = fnv1a(s, type);
 	size_t hash_off = hash % dedup.size();
 

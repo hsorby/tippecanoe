@@ -1592,14 +1592,14 @@ std::string overzoom(std::vector<source_tile> const &tiles, int nz, int nx, int 
 
 				bool flush_multiplier_cluster = false;
 				if (demultiply) {
-					for (ssize_t i = feature.tags.size() - 2; i >= 0; i -= 2) {
+                    for (std::size_t i = feature.tags.size() - 2; i >= 0; i -= 2) {
 						if (layer.keys[feature.tags[i]] == retain_points_multiplier_first) {
 							mvt_value v = layer.values[feature.tags[i + 1]];
 							if (v.type == mvt_bool && v.numeric_value.bool_value) {
 								flush_multiplier_cluster = true;
 								feature.tags.erase(feature.tags.begin() + i, feature.tags.begin() + i + 2);
 							}
-						} else if (i < (ssize_t) feature.tags.size() && layer.keys[feature.tags[i]] == retain_points_multiplier_sequence) {
+                        } else if (i < (std::size_t) feature.tags.size() && layer.keys[feature.tags[i]] == retain_points_multiplier_sequence) {
 							mvt_value v = layer.values[feature.tags[i + 1]];
 							feature.seq = mvt_value_to_long_long(v);
 							feature.tags.erase(feature.tags.begin() + i, feature.tags.begin() + i + 2);
@@ -1732,7 +1732,7 @@ std::string overzoom(std::vector<source_tile> const &tiles, int nz, int nx, int 
 		}
 	}
 
-	for (ssize_t i = outtile.layers.size() - 1; i >= 0; i--) {
+    for (std::size_t i = outtile.layers.size() - 1; i >= 0; i--) {
 		if (outtile.layers[i].features.size() == 0) {
 			outtile.layers.erase(outtile.layers.begin() + i);
 		}

@@ -3,6 +3,13 @@
 #include <algorithm>
 #include <cmath>
 
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #include "geometry.hpp"
 
 namespace mapbox {

@@ -1,6 +1,9 @@
 #ifndef POOL_HPP
 #define POOL_HPP
 
+#include <cstddef>
+#include <vector>
+
 struct stringpool {
 	unsigned long left = 0;
 	unsigned long right = 0;
@@ -9,6 +12,6 @@ struct stringpool {
 	size_t hash;  // hash of the string at this node
 };
 
-long long addpool(struct memfile *poolfile, struct memfile *treefile, const char *s, char type, std::vector<ssize_t> &dedup);
+long long addpool(struct memfile *poolfile, struct memfile *treefile, const char *s, char type, std::vector<std::ptrdiff_t> &dedup);
 
 #endif

@@ -396,7 +396,7 @@ void decode(char *fname, int z, unsigned x, unsigned y, std::set<std::string> co
 
 				std::string s;
 				char buf[2000];
-				ssize_t n;
+                std::size_t n;
 				while ((n = fread(buf, 1, 2000, f)) > 0) {
 					s.append(std::string(buf, n));
 				}

@@ -31,7 +31,8 @@ int memfile_close(struct memfile *file) {
 	// If it is full, close out the buffered file writer.
 
 	if (file->fp == NULL) {
-		if (write(file->fd, file->map.c_str(), file->map.size()) != (ssize_t) file->map.size()) {
+        auto result = write(file->fd, file->map.c_str(), file->map.size());
+        if (result < 0 || static_cast<size_t>(result) != (std::ptrdiff_t) file->map.size()) {
 			return -1;
 		}
 
