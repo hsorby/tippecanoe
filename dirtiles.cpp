@@ -3,10 +3,9 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <sys/stat.h>
+#include <filesystem>
+#include <cstdio>
+#include <climits>
 #include <sqlite3.h>
 
 #include "jsonpull/jsonpull.h"
