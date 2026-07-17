@@ -19,6 +19,8 @@ if (WIN32)
   )
 
   FetchContent_MakeAvailable(zlib)
+
+  add_library(ZLIB::ZLIB ALIAS zlibstatic)
 else()
   find_package(ZLIB REQUIRED)
 endif()
