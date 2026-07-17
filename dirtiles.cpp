@@ -10,273 +10,335 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include <sqlite3.h>
+
 #include "jsonpull/jsonpull.h"
 #include "mbtiles.hpp"
 #include "dirtiles.hpp"
 #include "errors.hpp"
 #include "write_json.hpp"
 
+namespace fs = std::filesystem;
+
 std::string dir_read_tile(std::string base, struct zxy tile) {
-	std::ifstream pbfFile(base + "/" + tile.path(), std::ios::in | std::ios::binary);
+    fs::path tilePath = fs::path(base) / tile.path();
+    std::ifstream pbfFile(tilePath, std::ios::in | std::ios::binary);
 	std::ostringstream contents;
 	contents << pbfFile.rdbuf();
 	pbfFile.close();
 
-	return (contents.str());
+    return contents.str();
 }
 
 void dir_write_tile(const char *outdir, int z, int tx, int ty, std::string const &pbf) {
-	// Don't check mkdir error returns, since most of these calls to
-	// mkdir will be creating directories that already exist.
-	mkdir(outdir, S_IRWXU | S_IRWXG | S_IRWXO);
 
-	std::string curdir(outdir);
-	std::string slash("/");
+    // Create <outdir>/<z>/<tx>
+    fs::path targetDir = fs::path(outdir) / std::to_string(z) / std::to_string(tx);
+    fs::create_directories(targetDir);
 
-	std::string newdir = curdir + slash + std::to_string(z);
-	mkdir(newdir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+    fs::path tile_path = targetDir / (std::to_string(ty) + ".pbf");
+    if (fs::exists(tile_path)) {
+        std::cerr << tile_path << ": file exists" << std::endl;
+        std::exit(EXIT_EXISTS);
+    }
 
-	newdir = newdir + "/" + std::to_string(tx);
-	mkdir(newdir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+    std::ofstream out(tile_path, std::ios::binary);
 
-	newdir = newdir + "/" + std::to_string(ty) + ".pbf";
+    if (!out) {
+        std::cerr << tile_path << ": Failed to open." << std::endl;
+        std::exit(EXIT_WRITE);
+    }
 
-	struct stat st;
-	if (stat(newdir.c_str(), &st) == 0) {
-		fprintf(stderr, "Can't write tile to already existing %s\n", newdir.c_str());
-		exit(EXIT_EXISTS);
-	}
+    out.write(pbf.data(), static_cast<std::streamsize>(pbf.size()));
 
-	FILE *fp = fopen(newdir.c_str(), "wb");
-	if (fp == NULL) {
-		fprintf(stderr, "%s: %s\n", newdir.c_str(), strerror(errno));
-		exit(EXIT_WRITE);
-	}
+    if (!out) {
+        std::cerr << tile_path << ": Failed to write." << std::endl;
+        std::exit(EXIT_WRITE);
+    }
 
-	if (fwrite(pbf.c_str(), sizeof(char), pbf.size(), fp) != pbf.size()) {
-		fprintf(stderr, "%s: %s\n", newdir.c_str(), strerror(errno));
-		exit(EXIT_WRITE);
-	}
+    out.close();
 
-	if (fclose(fp) != 0) {
-		fprintf(stderr, "%s: %s\n", newdir.c_str(), strerror(errno));
-		exit(EXIT_CLOSE);
-	}
+    if (!out) {
+        std::cerr << tile_path << ": Failed to close." << std::endl;
+        std::exit(EXIT_CLOSE);
+    }
 }
 
-static bool numeric(const char *s) {
-	if (*s == '\0') {
-		return false;
-	}
-	for (; *s != 0; s++) {
-		if (*s < '0' || *s > '9') {
-			return false;
-		}
-	}
-	return true;
+static bool numeric(const std::string &s) {
+
+    std::string_view sv{s};
+
+    return !sv.empty() &&
+           std::all_of(sv.begin(), sv.end(),
+                       [](unsigned char c) {
+                           return std::isdigit(c);
+                       });
+
 }
 
-static bool pbfname(const char *s) {
-	while (*s >= '0' && *s <= '9') {
-		s++;
-	}
+static bool pbfname(const std::string &s) {
+    fs::path p{s};
 
-	return strcmp(s, ".pbf") == 0 || strcmp(s, ".mvt") == 0;
+    auto stem = p.stem().string();
+
+    if (stem.empty() ||
+        !std::all_of(stem.begin(), stem.end(), [](unsigned char c) { return std::isdigit(c); })) {
+        return false;
+    }
+    auto ext = p.extension();
+
+   return ext == ".pbf" || ext == ".m*t";
 }
 
 void check_dir(const char *dir, char **argv, bool force, bool forcetable) {
-	struct stat st;
 
-	mkdir(dir, S_IRWXU | S_IRWXG | S_IRWXO);
-	std::string meta = std::string(dir) + "/" + "metadata.json";
-	if (force) {
-		unlink(meta.c_str());  // error OK since it may not exist;
-	} else {
-		if (stat(meta.c_str(), &st) == 0) {
-			fprintf(stderr, "%s: Tileset \"%s\" already exists. You can use --force if you want to delete the old tileset.\n", argv[0], dir);
-			fprintf(stderr, "%s: %s: file exists\n", argv[0], meta.c_str());
-			if (!forcetable) {
-				exit(EXIT_EXISTS);
-			}
-		}
-	}
+    fs::create_directories(dir);
 
-	if (forcetable) {
-		// Don't clear existing tiles
-		return;
-	}
+    const fs::path meta = fs::path(dir) / "metadata.json";
 
-	std::vector<zxy> tiles = enumerate_dirtiles(dir, INT_MIN, INT_MAX);
+    std::error_code ec;
+    if (force) {
+        fs::remove(meta, ec);  // OK if it doesn't exist
+    } else {
+        if (fs::exists(meta)) {
+            std::cerr << argv[0]
+                      << ": Tileset \"" << dir
+                      << "\" already exists. You can use --force if you want to delete the old tileset." << std::endl;
 
-	for (size_t i = 0; i < tiles.size(); i++) {
-		std::string fn = std::string(dir) + "/" + tiles[i].path();
+            std::cerr << argv[0]
+                      << ": " << meta
+                      << ": file exists" << std::endl;
 
-		if (force) {
-			if (unlink(fn.c_str()) != 0) {
-				perror(fn.c_str());
-				exit(EXIT_UNLINK);
-			}
-		} else {
-			fprintf(stderr, "%s: file exists\n", fn.c_str());
-			exit(EXIT_EXISTS);
-		}
-	}
+            if (!forcetable) {
+                std::exit(EXIT_EXISTS);
+            }
+        }
+    }
+
+    if (forcetable) {
+        // Don't clear existing tiles
+        return;
+    }
+
+    const auto tiles = enumerate_dirtiles(dir, INT_MIN, INT_MAX);
+
+    for (const auto &tile : tiles) {
+        const fs::path fn = fs::path(dir) / tile.path();
+
+        if (force) {
+            if (!fs::remove(fn, ec)) {
+                std::cerr << "Failed to remove " << fn << std::endl;
+                std::exit(EXIT_UNLINK);
+            }
+        } else {
+            std::cerr << fn << ": file exists" << std::endl;
+            std::exit(EXIT_EXISTS);
+        }
+    }
 }
 
-std::vector<zxy> enumerate_dirtiles(const char *fname, int minzoom, int maxzoom) {
-	std::vector<zxy> tiles;
+std::vector<zxy> enumerate_dirtiles(const char *fname, int minzoom, int maxzoom)
+{
+    std::vector<zxy> tiles;
+    std::error_code ec;
 
-	DIR *d1 = opendir(fname);
-	if (d1 != NULL) {
-		struct dirent *dp;
-		while ((dp = readdir(d1)) != NULL) {
-			if (numeric(dp->d_name) && atoi(dp->d_name) >= minzoom && atoi(dp->d_name) <= maxzoom) {
-				std::string z = std::string(fname) + "/" + dp->d_name;
-				int tz = atoi(dp->d_name);
+    fs::directory_iterator z_iter(fname, ec);
 
-				DIR *d2 = opendir(z.c_str());
-				if (d2 == NULL) {
-					perror(z.c_str());
-					exit(EXIT_OPEN);
-				}
+    if (ec) {
+        std::cerr << fname << ": " << ec.message() << std::endl;
+        std::exit(EXIT_OPEN);
+    }
 
-				struct dirent *dp2;
-				while ((dp2 = readdir(d2)) != NULL) {
-					if (numeric(dp2->d_name)) {
-						std::string x = z + "/" + dp2->d_name;
-						int tx = atoi(dp2->d_name);
+    for (const auto &z_entry : z_iter) {
+        const auto z_name = z_entry.path().filename().string();
 
-						DIR *d3 = opendir(x.c_str());
-						if (d3 == NULL) {
-							perror(x.c_str());
-							exit(EXIT_OPEN);
-						}
+        if (!numeric(z_name)) {
+            continue;
+        }
 
-						struct dirent *dp3;
-						while ((dp3 = readdir(d3)) != NULL) {
-							if (pbfname(dp3->d_name)) {
-								int ty = atoi(dp3->d_name);
-								zxy tile(tz, tx, ty);
-								if (strstr(dp3->d_name, ".mvt") != NULL) {
-									tile.extension = ".mvt";
-								}
+        const int tz = std::stoi(z_name);
 
-								tiles.push_back(tile);
-							}
-						}
+        if (tz < minzoom || tz > maxzoom) {
+            continue;
+        }
 
-						closedir(d3);
-					}
-				}
+        fs::directory_iterator x_iter(z_entry.path(), ec);
 
-				closedir(d2);
-			}
-		}
+        if (ec) {
+            std::cerr << z_entry.path() << ": "
+                      << ec.message() << std::endl;
+            std::exit(EXIT_OPEN);
+        }
 
-		closedir(d1);
-	}
+        for (const auto &x_entry : x_iter) {
 
-	std::stable_sort(tiles.begin(), tiles.end());
-	return tiles;
+            const auto x_name = x_entry.path().filename().string();
+
+            if (!numeric(x_name)) {
+                continue;
+            }
+
+            const int tx = std::stoi(x_name);
+
+            fs::directory_iterator y_iter(x_entry.path(), ec);
+
+            if (ec) {
+                std::cerr << x_entry.path() << ": "
+                          << ec.message() << std::endl;
+                std::exit(EXIT_OPEN);
+            }
+
+            for (const auto &y_entry : y_iter) {
+
+                const auto y_name = y_entry.path().filename().string();
+
+                if (!pbfname(y_name)) {
+                    continue;
+                }
+
+                const int ty = std::stoi(y_entry.path().stem().string());
+
+                zxy tile(tz, tx, ty);
+
+                if (y_entry.path().extension() == ".mvt") {
+                    tile.extension = ".mvt";
+                }
+
+                tiles.push_back(std::move(tile));
+            }
+        }
+    }
+
+    std::stable_sort(tiles.begin(), tiles.end());
+    return tiles;
 }
+
+#include <filesystem>
+#include <system_error>
 
 void dir_erase_zoom(const char *fname, int zoom) {
-	DIR *d1 = opendir(fname);
-	if (d1 != NULL) {
-		struct dirent *dp;
-		while ((dp = readdir(d1)) != NULL) {
-			if (numeric(dp->d_name) && atoi(dp->d_name) == zoom) {
-				std::string z = std::string(fname) + "/" + dp->d_name;
+    namespace fs = std::filesystem;
 
-				DIR *d2 = opendir(z.c_str());
-				if (d2 == NULL) {
-					perror(z.c_str());
-					exit(EXIT_OPEN);
-				}
+    std::error_code ec;
 
-				struct dirent *dp2;
-				while ((dp2 = readdir(d2)) != NULL) {
-					if (numeric(dp2->d_name)) {
-						std::string x = z + "/" + dp2->d_name;
+    const fs::path zpath = fs::path(fname) / std::to_string(zoom);
 
-						DIR *d3 = opendir(x.c_str());
-						if (d3 == NULL) {
-							perror(x.c_str());
-							exit(EXIT_OPEN);
-						}
+    if (!fs::exists(zpath, ec)) {
+        return;
+    }
 
-						struct dirent *dp3;
-						while ((dp3 = readdir(d3)) != NULL) {
-							if (pbfname(dp3->d_name)) {
-								std::string y = x + "/" + dp3->d_name;
-								if (unlink(y.c_str()) != 0) {
-									perror(y.c_str());
-									exit(EXIT_UNLINK);
-								}
-							}
-						}
+    fs::directory_iterator x_iter(zpath, ec);
 
-						closedir(d3);
-					}
-				}
+    if (ec) {
+        std::cerr << zpath << ": " << ec.message() << std::endl;
+        std::exit(EXIT_OPEN);
+    }
 
-				closedir(d2);
-			}
-		}
+    for (const auto& x_entry : x_iter) {
 
-		closedir(d1);
-	}
+        const auto x_name = x_entry.path().filename().string();
+
+        if (!numeric(x_name)) {
+            continue;
+        }
+
+        fs::directory_iterator y_iter(x_entry.path(), ec);
+
+        if (ec) {
+            std::cerr << x_entry.path() << ": " << ec.message() << std::endl;
+            std::exit(EXIT_OPEN);
+        }
+
+        for (const auto& y_entry : y_iter) {
+
+            const auto filename =
+                y_entry.path().filename().string();
+
+            if (!pbfname(filename)) {
+                continue;
+            }
+
+            if (!fs::remove(y_entry.path(), ec)) {
+                std::cerr << y_entry.path() << ": " << ec.message() << std::endl;
+                std::exit(EXIT_UNLINK);
+            }
+        }
+    }
 }
 
 sqlite3 *dirmeta2tmp(const char *fname) {
-	sqlite3 *db;
-	char *err = NULL;
+    sqlite3 *db = nullptr;
+    char *err = nullptr;
 
-	if (sqlite3_open("", &db) != SQLITE_OK) {
-		fprintf(stderr, "Temporary db: %s\n", sqlite3_errmsg(db));
-		exit(EXIT_SQLITE);
-	}
-	if (sqlite3_exec(db, "CREATE TABLE metadata (name text, value text);", NULL, NULL, &err) != SQLITE_OK) {
-		fprintf(stderr, "Create metadata table: %s\n", err);
-		exit(EXIT_SQLITE);
-	}
+    if (sqlite3_open("", &db) != SQLITE_OK) {
+        std::cerr << "Temporary db: " << sqlite3_errmsg(db) << std::endl;
+        std::exit(EXIT_SQLITE);
+    }
 
-	std::string name = fname;
-	name += "/metadata.json";
+    if (sqlite3_exec(db, "CREATE TABLE metadata (name text, value text);", nullptr, nullptr, &err) != SQLITE_OK) {
+        std::cerr << "Create metadata table: " << err << std::endl;
+        std::exit(EXIT_SQLITE);
+    }
 
-	FILE *f = fopen(name.c_str(), "r");
-	if (f == NULL) {
-		perror(name.c_str());
-	} else {
-		json_pull *jp = json_begin_file(f);
-		json_object *o = json_read_tree(jp);
-		if (o == NULL) {
-			fprintf(stderr, "%s: metadata parsing error: %s\n", name.c_str(), jp->error);
-			exit(EXIT_JSON);
-		}
+    const fs::path metadata_path = fs::path(fname) / "metadata.json";
 
-		if (o->type != JSON_HASH) {
-			fprintf(stderr, "%s: bad metadata format\n", name.c_str());
-			exit(EXIT_JSON);
-		}
+    auto file =
+        std::unique_ptr<FILE, decltype(&fclose)>(
+            fopen(metadata_path.string().c_str(), "r"),
+            fclose);
 
-		for (size_t i = 0; i < o->value.object.length; i++) {
-			if (o->value.object.keys[i]->type != JSON_STRING || o->value.object.values[i]->type != JSON_STRING) {
-				fprintf(stderr, "%s: non-string in metadata\n", name.c_str());
-			}
+    if (!file) {
+        std::perror(metadata_path.string().c_str());
+        return db;
+    }
 
-			char *sql = sqlite3_mprintf("INSERT INTO metadata (name, value) VALUES (%Q, %Q);", o->value.object.keys[i]->value.string.string, o->value.object.values[i]->value.string.string);
-			if (sqlite3_exec(db, sql, NULL, NULL, &err) != SQLITE_OK) {
-				fprintf(stderr, "set %s in metadata: %s\n", o->value.object.keys[i]->value.string.string, err);
-			}
-			sqlite3_free(sql);
-		}
+    json_pull *jp = json_begin_file(file.get());
 
-		json_end(jp);
-		fclose(f);
-	}
+    json_object *o = json_read_tree(jp);
 
-	return db;
+    if (o == nullptr) {
+        std::cerr << metadata_path << ": metadata parsing error: " << jp->error << std::endl;
+        std::exit(EXIT_JSON);
+    }
+
+    if (o->type != JSON_HASH) {
+        std::cerr << metadata_path << ": bad metadata format\n";
+        std::exit(EXIT_JSON);
+    }
+
+    sqlite3_stmt *stmt = nullptr;
+
+    if (sqlite3_prepare_v2(db, "INSERT INTO metadata (name, value) VALUES (?, ?)", -1, &stmt, nullptr) != SQLITE_OK) {
+        std::cerr << "Prepare metadata insert: " << sqlite3_errmsg(db) << std::endl;
+        std::exit(EXIT_SQLITE);
+    }
+
+    for (size_t i = 0; i < o->value.object.length; ++i) {
+        auto *key = o->value.object.keys[i];
+        auto *value = o->value.object.values[i];
+
+        if (key->type != JSON_STRING ||
+            value->type != JSON_STRING) {
+            std::cerr << metadata_path << ": non-string in metadata\n";
+            continue;
+        }
+
+        sqlite3_reset(stmt);
+        sqlite3_clear_bindings(stmt);
+
+        sqlite3_bind_text(stmt, 1, key->value.string.string, -1, SQLITE_TRANSIENT);
+
+        sqlite3_bind_text(stmt, 2, value->value.string.string, -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            std::cerr << "set " << key->value.string.string << " in metadata: " << sqlite3_errmsg(db) << std::endl;
+        }
+    }
+
+    sqlite3_finalize(stmt);
+
+    json_end(jp);
+
+    return db;
 }
 
 static void out(json_writer &state, std::string k, std::string v) {
@@ -286,68 +348,70 @@ static void out(json_writer &state, std::string k, std::string v) {
 }
 
 void dir_write_metadata(const char *outdir, const metadata &m) {
-	std::string metadata = std::string(outdir) + "/metadata.json";
+    const fs::path metadata_path = fs::path(outdir) / "metadata.json";
 
-	struct stat st;
-	if (stat(metadata.c_str(), &st) == 0) {
-		// Leave existing metadata in place with --allow-existing
-	} else {
-		FILE *fp = fopen(metadata.c_str(), "w");
-		if (fp == NULL) {
-			perror(metadata.c_str());
-			exit(EXIT_OPEN);
-		}
+    // Leave existing metadata in place with --allow-existing
+    if (fs::exists(metadata_path)) {
+        return;
+    }
 
-		json_writer state(fp);
+    auto fp = std::unique_ptr<FILE, decltype(&fclose)>(
+        fopen(metadata_path.string().c_str(), "w"),
+        fclose);
 
-		state.json_write_hash();
-		state.json_write_newline();
+    if (!fp) {
+        perror(metadata_path.string().c_str());
+        exit(EXIT_OPEN);
+    }
 
-		out(state, "name", m.name);
-		out(state, "description", m.description);
-		out(state, "version", std::to_string(m.version));
-		out(state, "minzoom", std::to_string(m.minzoom));
-		out(state, "maxzoom", std::to_string(m.maxzoom));
-		out(state, "center", std::to_string(m.center_lon) + "," + std::to_string(m.center_lat) + "," + std::to_string(m.center_z));
-		out(state, "bounds", std::to_string(m.minlon) + "," + std::to_string(m.minlat) + "," + std::to_string(m.maxlon) + "," + std::to_string(m.maxlat));
-		out(state, "antimeridian_adjusted_bounds", std::to_string(m.minlon2) + "," + std::to_string(m.minlat2) + "," + std::to_string(m.maxlon2) + "," + std::to_string(m.maxlat2));
-		out(state, "type", m.type);
-		if (m.attribution.size() > 0) {
-			out(state, "attribution", m.attribution);
-		}
-		if (m.strategies_json.size() > 0) {
-			out(state, "strategies", m.strategies_json);
-		}
-		if (m.decisions_json.size() > 0) {
-			out(state, "tippecanoe_decisions", m.decisions_json);
-		}
-		out(state, "format", m.format);
-		out(state, "generator", m.generator);
-		out(state, "generator_options", m.generator_options);
+    json_writer state(fp.get());
 
-		if (m.vector_layers_json.size() > 0 || m.tilestats_json.size() > 0) {
-			std::string json = "{";
+    state.json_write_hash();
+    state.json_write_newline();
 
-			if (m.vector_layers_json.size() > 0) {
-				json += "\"vector_layers\":" + m.vector_layers_json;
+    out(state, "name", m.name);
+    out(state, "description", m.description);
+    out(state, "version", std::to_string(m.version));
+    out(state, "minzoom", std::to_string(m.minzoom));
+    out(state, "maxzoom", std::to_string(m.maxzoom));
+    out(state, "center", std::to_string(m.center_lon) + "," + std::to_string(m.center_lat) + "," + std::to_string(m.center_z));
+    out(state, "bounds", std::to_string(m.minlon) + "," + std::to_string(m.minlat) + "," + std::to_string(m.maxlon) + "," + std::to_string(m.maxlat));
+    out(state, "antimeridian_adjusted_bounds", std::to_string(m.minlon2) + "," + std::to_string(m.minlat2) + "," + std::to_string(m.maxlon2) + "," + std::to_string(m.maxlat2));
+    out(state, "type", m.type);
+    if (m.attribution.size() > 0) {
+        out(state, "attribution", m.attribution);
+    }
+    if (m.strategies_json.size() > 0) {
+        out(state, "strategies", m.strategies_json);
+    }
+    if (m.decisions_json.size() > 0) {
+        out(state, "tippecanoe_decisions", m.decisions_json);
+    }
+    out(state, "format", m.format);
+    out(state, "generator", m.generator);
+    out(state, "generator_options", m.generator_options);
 
-				if (m.tilestats_json.size() > 0) {
-					json += ",\"tilestats\":" + m.tilestats_json;
-				}
-			} else {
-				if (m.tilestats_json.size() > 0) {
-					json += "\"tilestats\":" + m.tilestats_json;
-				}
-			}
+    if (!m.vector_layers_json.empty() || !m.tilestats_json.empty()) {
+        std::string json = "{";
 
-			json += "}";
+        if (!m.vector_layers_json.empty()) {
+            json += "\"vector_layers\":" + m.vector_layers_json;
 
-			out(state, "json", json);
-		}
+            if (!m.tilestats_json.empty()) {
+                json += ",\"tilestats\":" + m.tilestats_json;
+            }
+        } else {
+            if (!m.tilestats_json.empty()) {
+                json += "\"tilestats\":" + m.tilestats_json;
+            }
+        }
 
-		state.json_write_newline();
-		state.json_end_hash();
-		state.json_write_newline();
-		fclose(fp);
-	}
+        json += "}";
+
+        out(state, "json", json);
+    }
+
+    state.json_write_newline();
+    state.json_end_hash();
+    state.json_write_newline();
 }
