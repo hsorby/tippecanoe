@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/mman.h>
 #include <errno.h>
 
 #include "memfile.hpp"
@@ -10,10 +8,6 @@
 #define INITIAL 256
 
 struct memfile *memfile_open(int fd) {
-	if (ftruncate(fd, INITIAL) != 0) {
-		return NULL;
-	}
-
 	struct memfile *mf = new memfile;
 	if (mf == NULL) {
 		return NULL;
@@ -26,18 +20,44 @@ struct memfile *memfile_open(int fd) {
 	return mf;
 }
 
+#ifdef _WIN32
+
+#include <io.h>
+
+inline int file_write(int fd, const void *buf, size_t len) {
+    return _write(fd, buf, static_cast<unsigned int>(len));
+}
+
+inline int file_close(int fd) {
+    return _close(fd);
+}
+
+#else
+
+#include <unistd.h>
+
+inline ssize_t file_write(int fd, const void *buf, size_t len) {
+    return write(fd, buf, len);
+}
+
+inline int file_close(int fd) {
+    return close(fd);
+}
+
+#endif
+
 int memfile_close(struct memfile *file) {
 	// If it isn't full yet, flush out the string to the file now.
 	// If it is full, close out the buffered file writer.
 
 	if (file->fp == NULL) {
-        auto result = write(file->fd, file->map.c_str(), file->map.size());
-        if (result < 0 || static_cast<size_t>(result) != (std::ptrdiff_t) file->map.size()) {
+        auto result = file_write(file->fd, file->map.data(), file->map.size());
+        if (result < 0 || static_cast<size_t>(result) != file->map.size()) {
 			return -1;
 		}
 
 		if (file->fd >= 0) {
-			if (close(file->fd) != 0) {
+            if (file_close(file->fd) != 0) {
 				return -1;
 			}
 		}
