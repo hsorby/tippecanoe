@@ -10,17 +10,16 @@
 #include <algorithm>
 #include <limits.h>
 #include <zlib.h>
+
 #include "protozero/varint.hpp"
 #include "geometry.hpp"
 #include "mbtiles.hpp"
 #include "mvt.hpp"
-#include "tile.hpp"
 #include "serial.hpp"
 #include "options.hpp"
 #include "main.hpp"
 #include "pool.hpp"
 #include "projection.hpp"
-#include "evaluator.hpp"
 #include "milo/dtoa_milo.h"
 #include "errors.hpp"
 #include "text.hpp"

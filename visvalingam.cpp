@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <cmath>
+
 #include "geometry.hpp"
 
 // Stuff to create the priority queue, or min heap.

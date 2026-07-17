@@ -1,6 +1,6 @@
 #pragma once
+
 #include <assert.h>
-#include <math.h>
 #include <cmath>
 
 #if defined(_MSC_VER)

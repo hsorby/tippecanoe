@@ -1,6 +1,7 @@
 #include <stack>
 #include <set>
 #include <stdlib.h>
+#include <limits.h>
 
 #include <mapbox/geometry/point.hpp>
 #include <mapbox/geometry/multi_polygon.hpp>
@@ -8,7 +9,6 @@
 
 #include <clipper2/clipper.h>
 
-#include <limits.h>
 #include "geometry.hpp"
 #include "errors.hpp"
 #include "compression.hpp"
@@ -16,7 +16,6 @@
 #include "evaluator.hpp"
 #include "serial.hpp"
 #include "attribute.hpp"
-#include "projection.hpp"
 #include "read_json.hpp"
 
 static std::vector<std::pair<double, double>> clip_poly1(std::vector<std::pair<double, double>> &geom,

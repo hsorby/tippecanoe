@@ -1,4 +1,5 @@
 #include <stdlib.h>
+
 #include "thread.hpp"
 
 // It is harder to profile tippecanoe because of its normal use of multiple threads.

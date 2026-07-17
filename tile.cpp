@@ -2,10 +2,7 @@
 #define _DARWIN_UNLIMITED_STREAMS
 #endif
 
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <stack>
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -29,22 +26,20 @@
 #include <fcntl.h>
 #include <zlib.h>
 #include <sys/wait.h>
+
 #include "mvt.hpp"
 #include "mbtiles.hpp"
 #include "dirtiles.hpp"
 #include "geometry.hpp"
 #include "tile.hpp"
-#include "pool.hpp"
 #include "projection.hpp"
 #include "serial.hpp"
 #include "options.hpp"
 #include "main.hpp"
 #include "write_json.hpp"
-#include "milo/dtoa_milo.h"
 #include "evaluator.hpp"
 #include "errors.hpp"
 #include "compression.hpp"
-#include "protozero/varint.hpp"
 #include "attribute.hpp"
 #include "thread.hpp"
 #include "shared_borders.hpp"

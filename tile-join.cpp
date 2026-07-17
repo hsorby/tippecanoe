@@ -21,8 +21,8 @@
 #include <map>
 #include <set>
 #include <zlib.h>
-#include <math.h>
 #include <pthread.h>
+
 #include "mvt.hpp"
 #include "projection.hpp"
 #include "mbtiles.hpp"
@@ -35,11 +35,9 @@
 #include "tile.hpp"
 #include "tile-cache.hpp"
 #include <fstream>
-#include <sstream>
 #include <algorithm>
 #include <functional>
 #include "jsonpull/jsonpull.h"
-#include "milo/dtoa_milo.h"
 #include "errors.hpp"
 #include "geometry.hpp"
 #include "thread.hpp"

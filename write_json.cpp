@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vector>
-#include <map>
 #include <string>
+
 #include "projection.hpp"
 #include "geometry.hpp"
 #include "mvt.hpp"

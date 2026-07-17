@@ -1,16 +1,13 @@
 #include <stdio.h>
 #include <string>
-#include <limits.h>
 #include <pthread.h>
+
 #include "mvt.hpp"
 #include "serial.hpp"
 #include "geobuf.hpp"
-#include "geojson.hpp"
 #include "projection.hpp"
 #include "main.hpp"
-#include "protozero/varint.hpp"
 #include "protozero/pbf_reader.hpp"
-#include "protozero/pbf_writer.hpp"
 #include "milo/dtoa_milo.h"
 #include "jsonpull/jsonpull.h"
 #include "text.hpp"

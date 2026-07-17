@@ -22,13 +22,11 @@
 #include "main.hpp"
 #include "mvt.hpp"
 #include "mbtiles.hpp"
-#include "projection.hpp"
 #include "geometry.hpp"
 #include "serial.hpp"
 #include "errors.hpp"
 #include "thread.hpp"
 #include "jsonpull/jsonpull.h"
-
 
 #include "plugin.hpp"
 #include "write_json.hpp"

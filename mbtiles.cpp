@@ -8,12 +8,11 @@
 #include <string.h>
 #include <sqlite3.h>
 #include <cmath>
-#include <climits>
 #include <vector>
 #include <string>
-#include <set>
 #include <map>
 #include <sys/stat.h>
+
 #include "mvt.hpp"
 #include "mbtiles.hpp"
 #include "text.hpp"

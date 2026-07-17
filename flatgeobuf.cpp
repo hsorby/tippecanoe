@@ -1,6 +1,6 @@
 #include <stdio.h>
+
 #include "serial.hpp"
-#include <iostream>
 #include "projection.hpp"
 #include "flatgeobuf/feature_generated.h"
 #include "flatgeobuf/header_generated.h"

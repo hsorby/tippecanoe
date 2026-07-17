@@ -1,5 +1,4 @@
 #include <stdarg.h>
-#include <fstream>
 
 #include "json_logger.hpp"
 

@@ -1,13 +1,12 @@
 #include <stdlib.h>
 #include <algorithm>
+
 #include "geocsv.hpp"
 #include "mvt.hpp"
 #include "serial.hpp"
 #include "projection.hpp"
-#include "main.hpp"
 #include "text.hpp"
 #include "csv.hpp"
-#include "milo/dtoa_milo.h"
 #include "options.hpp"
 #include "errors.hpp"
 

@@ -1,12 +1,10 @@
 #include <string>
 #include <unordered_map>
+
 #include "attribute.hpp"
 #include "errors.hpp"
 #include "serial.hpp"
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
-#include "milo/dtoa_milo.h"
+#include "jsonpull/jsonpull.h"
 
 std::map<std::string, attribute_op> numeric_operations = {
 	{"sum", op_sum},

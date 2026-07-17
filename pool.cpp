@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <math.h>
+#include <cmath>
+
 #include "main.hpp"
 #include "memfile.hpp"
 #include "pool.hpp"

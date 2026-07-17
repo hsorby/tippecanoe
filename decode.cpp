@@ -6,10 +6,8 @@
 #include <getopt.h>
 #include <string>
 #include <vector>
-#include <map>
 #include <set>
 #include <zlib.h>
-#include <math.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -17,10 +15,7 @@
 #include <protozero/pbf_reader.hpp>
 #include "mvt.hpp"
 #include "projection.hpp"
-#include "geometry.hpp"
 #include "write_json.hpp"
-#include "jsonpull/jsonpull.h"
-#include "mbtiles.hpp"
 #include "dirtiles.hpp"
 #include "pmtiles_file.hpp"
 #include "errors.hpp"

@@ -1,8 +1,9 @@
 #ifndef MBTILES_HPP
 #define MBTILES_HPP
 
-#include <math.h>
+#include <cmath>
 #include <map>
+
 #include "mvt.hpp"
 
 extern size_t max_tilestats_attributes;

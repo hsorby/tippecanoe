@@ -7,8 +7,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <ctype.h>
+
 #include "mvt.hpp"
-#include "geometry.hpp"
 #include "protozero/varint.hpp"
 #include "protozero/pbf_reader.hpp"
 #include "protozero/pbf_writer.hpp"

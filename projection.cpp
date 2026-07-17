@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
 #include <cmath>
 #include <atomic>
+
 #include "projection.hpp"
 #include "errors.hpp"
 
