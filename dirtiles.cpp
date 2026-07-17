@@ -5,10 +5,6 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
-#ifndef WIN32
-#include <unistd.h>
-#include <dirent.h>
-#endif
 #include <limits.h>
 #include <sys/stat.h>
 #include <sqlite3.h>
