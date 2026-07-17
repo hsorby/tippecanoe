@@ -1,5 +1,5 @@
 // for vasprintf() on Linux
-#if !defined(_GNU_SOURCE) && !defined(MSC_VER)
+#if !defined(_GNU_SOURCE) && !defined(_MSC_VER)
 #define _GNU_SOURCE
 #endif
 
@@ -16,6 +16,25 @@
 #include "milo/dtoa_milo.h"
 #include "errors.hpp"
 #include "serial.hpp"
+
+#ifdef _MSC_VER
+int vasprintf(char **strp, const char *format, va_list ap)
+{
+    int len = vscprintf(format, ap);
+    if (len == -1)
+        return -1;
+    char *str = (char*)malloc((size_t) len + 1);
+    if (!str)
+        return -1;
+    int retval = vsnprintf(str, len + 1, format, ap);
+    if (retval == -1) {
+        free(str);
+        return -1;
+    }
+    *strp = str;
+    return retval;
+}
+#endif
 
 void json_writer::json_adjust() {
 	if (state.size() == 0) {

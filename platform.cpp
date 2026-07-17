@@ -1,4 +1,5 @@
 #include "platform.hpp"
+
 #include <cstdlib>
 #include <cstdio>
 #ifdef _WIN32
