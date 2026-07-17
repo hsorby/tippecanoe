@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include <sqlite3.h>
 #include <getopt.h>
 #include <string>
@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <protozero/pbf_reader.hpp>
+
 #include "mvt.hpp"
 #include "projection.hpp"
 #include "write_json.hpp"

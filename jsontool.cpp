@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
 #include <stdarg.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include <string>
 #include <getopt.h>
 #include <vector>

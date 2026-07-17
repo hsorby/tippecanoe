@@ -3,9 +3,10 @@
 #include <fstream>
 #include <string.h>
 #include <algorithm>
-#include <unistd.h>
+// #include <unistd.h>
 #include <sys/stat.h>
 #include <sqlite3.h>
+
 #include "errors.hpp"
 #include "pmtiles_file.hpp"
 #include "mvt.hpp"
@@ -330,8 +331,8 @@ void mbtiles_map_image_to_pmtiles(char *fname, metadata m, bool tile_compression
 		ostream << tmp_istream.rdbuf();
 
 		tmp_istream.close();
-		unlink(tmpname.c_str());
-		ostream.close();
+        std::filesystem::remove(std::filesystem::path(tmpname));
+        ostream.close();
 	}
 }
 

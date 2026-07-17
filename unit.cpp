@@ -1,4 +1,8 @@
 #define CATCH_CONFIG_MAIN
+
+// #include <unistd.h>
+#include <limits.h>
+
 #include "catch/catch.hpp"
 #include "text.hpp"
 #include "sort.hpp"
@@ -6,8 +10,6 @@
 #include "mvt.hpp"
 #include "projection.hpp"
 #include "geometry.hpp"
-#include <unistd.h>
-#include <limits.h>
 
 TEST_CASE("UTF-8 enforcement", "[utf8]") {
 	REQUIRE(check_utf8("") == std::string(""));
