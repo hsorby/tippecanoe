@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <sqlite3.h>
 #include <stdarg.h>
-#include <pthread.h>
 #include <vector>
 #include <string>
 
