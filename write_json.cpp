@@ -1,5 +1,5 @@
 // for vasprintf() on Linux
-#ifndef _GNU_SOURCE
+#if !defined(_GNU_SOURCE) && !defined(MSC_VER)
 #define _GNU_SOURCE
 #endif
 

@@ -70,10 +70,18 @@ void fqsort(std::vector<FILE *> &inputs, size_t width, int (*cmp)(const void *, 
 		std::string t1 = std::string(tmpdir) + "/sort1.XXXXXX";
 		std::string t2 = std::string(tmpdir) + "/sort2.XXXXXX";
 
-		int fd1 = mkstemp((char *) t1.c_str());
+#ifdef _MSC_VER
+        int fd1 = _mktemp_s((char *) t1.c_str(), t1.length() + 1);
+#else
+        int fd1 = mkstemp((char *) t1.c_str());
+#endif
 		unlink(t1.c_str());
-		int fd2 = mkstemp((char *) t2.c_str());
-		unlink(t2.c_str());
+#ifdef _MSC_VER
+        int fd2 = _mktemp_s((char *) t2.c_str(), t2.length() + 1);
+#else
+        int fd2 = mkstemp((char *) t2.c_str());
+#endif
+        unlink(t2.c_str());
 
 		fp1 = fdopen(fd1, "w+b");
 		if (fp1 == NULL) {
