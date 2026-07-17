@@ -1,7 +1,11 @@
 #include "platform.hpp"
 #include <cstdlib>
 #include <cstdio>
-#ifndef _WIN32
+#ifdef _WIN32
+#define WINDOWS_LEAN_AND_MEAN
+#include <Windows.h>
+#include <iostream>
+#else
 #include <unistd.h>
 #include <sys/resource.h>
 #endif
