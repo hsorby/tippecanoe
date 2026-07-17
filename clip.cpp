@@ -1153,7 +1153,7 @@ The name of W. Randolph Franklin may not be used to endorse or promote products 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-int pnpoly(const drawvec &vert, size_t start, size_t nvert, long long testx, long long testy) {
+bool pnpoly(const drawvec &vert, size_t start, size_t nvert, long long testx, long long testy) {
 	size_t i, j;
 	bool c = false;
 	for (i = 0, j = nvert - 1; i < nvert; j = i++) {
