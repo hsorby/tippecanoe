@@ -5,8 +5,10 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#ifndef WIN32
 #include <unistd.h>
 #include <dirent.h>
+#endif
 #include <limits.h>
 #include <sys/stat.h>
 #include <sqlite3.h>
@@ -211,9 +213,6 @@ std::vector<zxy> enumerate_dirtiles(const char *fname, int minzoom, int maxzoom)
     std::stable_sort(tiles.begin(), tiles.end());
     return tiles;
 }
-
-#include <filesystem>
-#include <system_error>
 
 void dir_erase_zoom(const char *fname, int zoom) {
     namespace fs = std::filesystem;
