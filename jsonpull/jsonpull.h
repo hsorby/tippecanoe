@@ -1,9 +1,17 @@
 #ifndef JSONPULL_H
 #define JSONPULL_H
 
+#ifdef _MSC_VER
+#ifndef ssize_t
+#include <BaseTsd.h>
+#define ssize_t SSIZE_T
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 typedef enum json_type {
 	// These types can be returned by json_read()
