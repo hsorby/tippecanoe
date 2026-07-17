@@ -22,6 +22,9 @@
 #include <set>
 #include <zlib.h>
 #include <pthread.h>
+#include <fstream>
+#include <algorithm>
+#include <functional>
 
 #include "mvt.hpp"
 #include "projection.hpp"
@@ -34,9 +37,6 @@
 #include "text.hpp"
 #include "tile.hpp"
 #include "tile-cache.hpp"
-#include <fstream>
-#include <algorithm>
-#include <functional>
 #include "jsonpull/jsonpull.h"
 #include "errors.hpp"
 #include "geometry.hpp"
