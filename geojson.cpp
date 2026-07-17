@@ -23,9 +23,7 @@
 #include <set>
 #include <map>
 #include <string>
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
+#include "jsonpull/jsonpull.h"
 #include "pool.hpp"
 #include "projection.hpp"
 #include "memfile.hpp"

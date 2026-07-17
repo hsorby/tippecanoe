@@ -18,6 +18,7 @@
 #include <sys/wait.h>
 #include <sqlite3.h>
 #include <limits.h>
+
 #include "main.hpp"
 #include "mvt.hpp"
 #include "mbtiles.hpp"
@@ -26,10 +27,8 @@
 #include "serial.hpp"
 #include "errors.hpp"
 #include "thread.hpp"
+#include "jsonpull/jsonpull.h"
 
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
 
 #include "plugin.hpp"
 #include "write_json.hpp"

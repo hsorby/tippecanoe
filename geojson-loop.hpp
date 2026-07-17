@@ -1,7 +1,5 @@
 #include <string>
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
+#include "jsonpull/jsonpull.h"
 
 struct json_feature_action {
 	std::string fname;

@@ -40,7 +40,7 @@ struct zxy {
 		return false;
 	}
 
-	std::string path() {
+    std::string path() const {
 		return std::to_string(z) + "/" + std::to_string(x) + "/" + std::to_string(y) + extension;
 	}
 };

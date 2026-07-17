@@ -12,9 +12,7 @@
 #include "protozero/pbf_reader.hpp"
 #include "protozero/pbf_writer.hpp"
 #include "milo/dtoa_milo.h"
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
+#include "jsonpull/jsonpull.h"
 #include "text.hpp"
 #include "errors.hpp"
 #include "thread.hpp"

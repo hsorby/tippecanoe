@@ -9,9 +9,7 @@
 #include <stdio.h>
 
 #include "mvt.hpp"
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
+#include "jsonpull/jsonpull.h"
 #include "attribute.hpp"
 
 #define VT_POINT 1

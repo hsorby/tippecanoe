@@ -5,9 +5,8 @@
 #include <vector>
 #include <string>
 #include <map>
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
+
+#include "jsonpull/jsonpull.h"
 #include "geometry.hpp"
 #include "projection.hpp"
 #include "read_json.hpp"

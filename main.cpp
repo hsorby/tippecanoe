@@ -42,9 +42,7 @@
 #include <sys/statfs.h>
 #endif
 
-extern "C" {
-    #include "jsonpull/jsonpull.h"
-}
+#include "jsonpull/jsonpull.h"
 #include "mbtiles.hpp"
 #include "pmtiles_file.hpp"
 #include "tile.hpp"
